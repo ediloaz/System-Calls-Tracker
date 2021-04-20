@@ -3,6 +3,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/user.h>
+#include <sys/reg.h>
+#include <sys/ptrace.h>
+#include <sys/wait.h>
+
+
 
 int main(int argc, char *argv[]){
     int option = 0; //puede ser 0 para nada, 1 para v o 2 para V
@@ -59,7 +66,34 @@ int main(int argc, char *argv[]){
     	strcat(childProgramCommand, " ");
 	strcat(childProgramCommand, param);
     }
-	    
+	
+    
+    long orig_eax;
+    struct user_regs_struct regs;
+    pid_t pid = fork();
+    printf("PID: %d\n", pid);
+    //Child process
+    if(pid == 0){
+    	printf("PID 0: %d\n", pid);
+    	ptrace(PTRACE_TRACEME, 0, NULL, NULL);
+    	execl("./hora", "hora", NULL);    	
+    }else{
+    	sleep(3);
+    	printf("PID: %d\n", pid);
+    	orig_eax = ptrace(PTRACE_GETREGS, pid, NULL, &regs);
+    	
+    	if(orig_eax < 0){
+    	    printf("Error\n");
+    	    //fprintf(stderr, "%s\n", explain_ptrace(PTRACE_PEEKUSER, pid, 4*ORIG_RAX, NULL));
+    	    exit(EXIT_FAILURE);
+    	}
+    	printf("Programa realizó system call %ld \n", regs.orig_rax);
+    	
+    	
+    	
+    	ptrace(PTRACE_CONT, pid, NULL, NULL);
+    	
+    }   
     
     free(childProgramCommand);
     

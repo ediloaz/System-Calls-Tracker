@@ -10,7 +10,6 @@
 #include <sys/wait.h>
 
 
-
 int main(int argc, char *argv[]){
     int option = 0; //puede ser 0 para nada, 1 para v o 2 para V
     char* childProgramName;
@@ -70,24 +69,46 @@ int main(int argc, char *argv[]){
     
     long orig_eax;
     struct user_regs_struct regs;
+    int status; 
+    int in_call = 0;
+    
     pid_t pid = fork();
-    printf("PID: %d\n", pid);
-    //Child process
+    if(pid == -1){
+    	perror("Error al hacer fork");
+    	exit(1);
+    }
+    //Proceso hijo que se rastrea
     if(pid == 0){
-    	printf("PID 0: %d\n", pid);
+    	//Permite que el proceso sea rastreado
     	ptrace(PTRACE_TRACEME, 0, NULL, NULL);
-    	execl("./hora", "hora", NULL);    	
+    	//Ejecuta programa hijo
+    	execvp(childProgramName, argv + paramIndex - 1);    	
     }else{
-    	sleep(3);
-    	printf("PID: %d\n", pid);
-    	orig_eax = ptrace(PTRACE_GETREGS, pid, NULL, &regs);
+    
+    //Proceso padre
+    	wait(&status);
+    	//1407: exit
+    	while(status == 1407){    	    
     	
-    	if(orig_eax < 0){
-    	    printf("Error\n");
-    	    //fprintf(stderr, "%s\n", explain_ptrace(PTRACE_PEEKUSER, pid, 4*ORIG_RAX, NULL));
-    	    exit(EXIT_FAILURE);
+    	    orig_eax = ptrace(PTRACE_GETREGS, pid, NULL, &regs);
+    	
+    	    if(orig_eax < 0){
+    	        printf("Error\n");
+    	        //fprintf(stderr, "%s\n", explain_ptrace(PTRACE_PEEKUSER, pid, 4*ORIG_RAX, NULL));
+    	        exit(EXIT_FAILURE);
+    	    }
+    	    printf("Programa realizó system call %ld llamado con %ld, %ld, %ld \n", regs.orig_rax, regs.rbx, regs.rcx, regs.rdx);
+    	    
+    	    /*if(!in_call){
+    	    	printf("Programa realizó system call %ld llamado con %ld, %ld, %ld \n", regs.orig_rax, regs.rbx, regs.rcx, regs.rdx);
+    	    	in_call = 1;    	    	
+    	    }else{
+    	    	in_call = 0;
+    	    }*/
+    	    
+    	    ptrace(PTRACE_SYSCALL, pid, NULL, NULL); //Continúa ejecución de programa
+    	    wait(&status);
     	}
-    	printf("Programa realizó system call %ld \n", regs.orig_rax);
     	
     	
     	

@@ -12,6 +12,36 @@
 #define TOTAL_SYSCALLS 548
 
 int main(int argc, char *argv[]){
+	char syscalls[TOTAL_SYSCALLS][120];
+	FILE *stream;
+	char *line = NULL;
+	size_t len = 0;
+	ssize_t length;
+ 
+	stream = fopen("/usr/include/x86_64-linux-gnu/asm/unistd_64.h", "r");
+	if (stream == NULL)
+		exit(EXIT_FAILURE);
+	
+	int cont = 0;
+ 
+	while ((length = getline(&line, &len, stream)) != -1) 
+	{
+		if((cont++ > 2) && (line[1] == 'd'))
+		{
+			char newline[length - 13];
+			for (int i = 0; i < length - 13; i++)
+			{
+				newline[i] = line[i + 13];
+			}
+			char *name = strtok(newline, " ");
+			int index = atoi(strtok(NULL, " "));
+			strcpy(syscalls[index], name);
+		}
+	}
+ 
+	free(line);
+	fclose(stream);
+
     int option = 0; //puede ser 0 para nada, 1 para v o 2 para V
     char* childProgramName;
     char* childProgramCommand;
@@ -82,7 +112,7 @@ int main(int argc, char *argv[]){
     	    }
     	    
     	    if(!in_call){
-    	    	printf("Programa realizó system call %lld llamado con %lld, %lld, %lld \n", regs.orig_rax, regs.rbx, regs.rcx, regs.rdx);
+    	    	printf("Programa realizó system call %s(%lld) llamado con %lld, %lld, %lld \n", syscalls[regs.orig_rax], regs.orig_rax, regs.rbx, regs.rcx, regs.rdx);
     	    	
     	    	contador_syscalls[regs.orig_rax] ++;
     	    	
@@ -104,7 +134,7 @@ int main(int argc, char *argv[]){
     	printf("══════════════════════════ \n");
     	for(int i=0; i < TOTAL_SYSCALLS ; i++){
     	    if(contador_syscalls[i] > 0){
-    	         printf("%d	║ %d	║ %s\n", i, contador_syscalls[i], "?");
+    	         printf("%d	║ %d	║ %s\n", i, contador_syscalls[i], syscalls[contador_syscalls[i]]);
     	    }  	
     	}
 

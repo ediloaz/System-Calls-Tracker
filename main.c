@@ -104,7 +104,7 @@ int main(int argc, char *argv[]){
     	
     	
     	//IMPRIMIT TABLA RESUMEN
-    	printf("ID	|CONTADOR	|NOMBRE\n");
+    	printf("ID	|CONT	|NOMBRE\n");
     	for(int i=0; i < TOTAL_SYSCALLS ; i++){
     	    if(contador_syscalls[i] > 0){
     	         printf("%d	|%d	|%s\n", i, contador_syscalls[i], "?");    	    

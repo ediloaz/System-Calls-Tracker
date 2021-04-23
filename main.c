@@ -9,6 +9,7 @@
 #include <sys/ptrace.h>
 #include <sys/wait.h>
 
+#define TOTAL_SYSCALLS 548
 
 int main(int argc, char *argv[]){
     int option = 0; //puede ser 0 para nada, 1 para v o 2 para V
@@ -46,32 +47,17 @@ int main(int argc, char *argv[]){
     	
     }
     printf("Se ejecutara programa en modo: %d\n",option);
-    
-    //LEE PARÁMETROS DE PROGRAMA HIJO
-    int sizeChildParams = 0;
-    for(int i=paramIndex; i < argc; i++){
-    	char* param = argv[i];
-    	
-    	sizeChildParams += strlen(param) + 1;
-    }
-    childProgramCommand = malloc (strlen(childProgramName) + sizeChildParams + 1);
-    if(childProgramCommand == NULL){
-    	printf("Error al hacer malloc");
-    	return 1;
-    }
-    strcpy(childProgramCommand, childProgramName);
-    for(int i=paramIndex; i < argc; i++){
-    	char* param = argv[i];
-    	strcat(childProgramCommand, " ");
-	strcat(childProgramCommand, param);
-    }
-	
+
     
     long orig_eax;
     struct user_regs_struct regs;
     int status; 
     int in_call = 0;
-    //int inputParaContinuar;
+    
+    //int contador_syscalls[TOTAL_SYSCALLS] = {0};
+    
+    //for(int i=0; i < 548; i++) printf("%d",contador_syscalls[i]);
+
     
     pid_t pid = fork();
     if(pid == -1){
@@ -102,6 +88,8 @@ int main(int argc, char *argv[]){
     	    if(!in_call){
     	    	printf("Programa realizó system call %lld llamado con %lld, %lld, %lld \n", regs.orig_rax, regs.rbx, regs.rcx, regs.rdx);
     	    	
+    	    	//contador_syscalls[regs.orig_rax] ++;
+    	    	
     	    	if(option == 2){
     	    	    //Pausar la ejecución después de imprimir syscall
     	    	    getchar();
@@ -115,8 +103,15 @@ int main(int argc, char *argv[]){
     	}
     	
     	
-    	
-    	
+    	//IMPRIMIT TABLA RESUMEN
+    	printf("ID	|CONTADOR	|NOMBRE\n");
+    	/*for(int i=0; i < TOTAL_SYSCALLS ; i++){
+    	    if(contador_syscalls[i] > 0){
+    	         printf("%d	|%d	|%s\n", i, contador_syscalls[i], "?");    	    
+    	    }  
+    	    printf("%d\n",contador_syscalls[i]);  	
+    	}*/	
+	
     }   
     
     free(childProgramCommand);

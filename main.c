@@ -100,11 +100,11 @@ int main(int argc, char *argv[]){
     	
     	
     	//IMPRIMIT TABLA RESUMEN
-    	printf("ID	|CONT	|NOMBRE	\n");
-    	printf("-------------------------------\n");
+    	printf("\nID	║ CONT	║ NOMBRE	\n");
+    	printf("══════════════════════════ \n");
     	for(int i=0; i < TOTAL_SYSCALLS ; i++){
     	    if(contador_syscalls[i] > 0){
-    	         printf("%d	|%d	|%s\n", i, contador_syscalls[i], "?");    	    
+    	         printf("%d	║ %d	║ %s\n", i, contador_syscalls[i], "?");
     	    }  	
     	}
 

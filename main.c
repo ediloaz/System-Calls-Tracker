@@ -56,9 +56,6 @@ int main(int argc, char *argv[]){
     
     int contador_syscalls[TOTAL_SYSCALLS] = {0};
     
-    for(int i=0; i < 548; i++) printf("%d",contador_syscalls[i]);
-
-    
     pid_t pid = fork();
     if(pid == -1){
     	perror("Error al hacer fork");
@@ -81,7 +78,6 @@ int main(int argc, char *argv[]){
     	
     	    if(orig_eax < 0){
     	        printf("Error\n");
-    	        // fprintf(stderr, "%s\n", explain_ptrace(PTRACE_PEEKUSER, pid, 4*ORIG_RAX, NULL));
     	        exit(EXIT_FAILURE);
     	    }
     	    
@@ -104,17 +100,15 @@ int main(int argc, char *argv[]){
     	
     	
     	//IMPRIMIT TABLA RESUMEN
-    	printf("ID	|CONT	|NOMBRE\n");
+    	printf("ID	|CONT	|NOMBRE	\n");
+    	printf("-------------------------------\n");
     	for(int i=0; i < TOTAL_SYSCALLS ; i++){
     	    if(contador_syscalls[i] > 0){
     	         printf("%d	|%d	|%s\n", i, contador_syscalls[i], "?");    	    
-    	    }  
-    	    // printf("%d\n",contador_syscalls[i]);  	
+    	    }  	
     	}
 
     }   
-    
-    // free(childProgramCommand);
-    
+        
     return 0;
 }

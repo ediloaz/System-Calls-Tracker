@@ -7,7 +7,6 @@ int main()
    time(&t);
    
    printf("La hora es: %s", ctime(&t));
-   
-   printf(1);
+
    return 0;
 }

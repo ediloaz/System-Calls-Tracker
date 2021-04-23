@@ -71,6 +71,7 @@ int main(int argc, char *argv[]){
     struct user_regs_struct regs;
     int status; 
     int in_call = 0;
+    //int inputParaContinuar;
     
     pid_t pid = fork();
     if(pid == -1){
@@ -97,22 +98,24 @@ int main(int argc, char *argv[]){
     	        //fprintf(stderr, "%s\n", explain_ptrace(PTRACE_PEEKUSER, pid, 4*ORIG_RAX, NULL));
     	        exit(EXIT_FAILURE);
     	    }
-    	    printf("Programa realizó system call %ld llamado con %ld, %ld, %ld \n", regs.orig_rax, regs.rbx, regs.rcx, regs.rdx);
     	    
-    	    /*if(!in_call){
-    	    	printf("Programa realizó system call %ld llamado con %ld, %ld, %ld \n", regs.orig_rax, regs.rbx, regs.rcx, regs.rdx);
+    	    if(!in_call){
+    	    	printf("Programa realizó system call %lld llamado con %lld, %lld, %lld \n", regs.orig_rax, regs.rbx, regs.rcx, regs.rdx);
+    	    	
+    	    	if(option == 2){
+    	    	    //Pausar la ejecución después de imprimir syscall
+    	    	    getchar();
+    	    	}
     	    	in_call = 1;    	    	
     	    }else{
     	    	in_call = 0;
-    	    }*/
-    	    
+    	    }
     	    ptrace(PTRACE_SYSCALL, pid, NULL, NULL); //Continúa ejecución de programa
     	    wait(&status);
     	}
     	
     	
     	
-    	ptrace(PTRACE_CONT, pid, NULL, NULL);
     	
     }   
     

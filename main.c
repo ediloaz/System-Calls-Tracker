@@ -74,16 +74,13 @@ int main(int argc, char *argv[]){
     	    printf("El nombre del programa por ejecutar es: %s\n",param);
     	    break;
     	}    	
-    	
     }
     printf("Se ejecutara programa en modo: %d\n",option);
 
-    
     long orig_eax;
     struct user_regs_struct regs;
     int status; 
     int in_call = 0;
-    
     int contador_syscalls[TOTAL_SYSCALLS] = {0};
     
     pid_t pid = fork();
@@ -126,8 +123,7 @@ int main(int argc, char *argv[]){
     	    }
     	    ptrace(PTRACE_SYSCALL, pid, NULL, NULL); //Continúa ejecución de programa
     	    wait(&status);
-    	}
-    	
+    	}    	
     	
     	//IMPRIMIT TABLA RESUMEN
     	printf("\nID	║ CONT	║ NOMBRE	\n");
@@ -137,7 +133,6 @@ int main(int argc, char *argv[]){
     	         printf("%d	║ %d	║ %s\n", i, contador_syscalls[i], syscalls[contador_syscalls[i]]);
     	    }  	
     	}
-
     }   
         
     return 0;
